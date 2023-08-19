@@ -81,9 +81,15 @@
 			const email = document.getElementById("email").value;
 			const senha = document.getElementById("senha").value;
 
+            buttonSubmit.disabled = true;
+			buttonSubmit.innerHTML = `
+            <div class="spinner-border text-success" role="status">
+                <span class="sr-only"></span>
+            </div>
+        	`;
+
 			signInWithEmailAndPassword(auth,email, senha)
 			.then(function(userCredential){
-                alert('Usuário logado com sucesso')
 				const user = userCredential.user;
 				window.location.href = "home.html";
 			}).catch(function(error){
