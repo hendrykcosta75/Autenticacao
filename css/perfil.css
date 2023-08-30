@@ -1,0 +1,15 @@
+.gradient-custom {
+    background: linear-gradient(110.1deg, rgb(34, 126, 34) 2.9%, rgb(168, 251, 60) 90.3%);
+}
+
+.input-profile{
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+.input-password{
+    outline: none;
+    border-radius: 10px;
+    border: 1px solid #ccc; 
+}

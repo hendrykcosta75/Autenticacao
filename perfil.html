@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/perfil.css">
+    <title>Home</title>
+</head>
+<body>
+
+
+    <section class="vh-100" style="background-color: #f4f5f7;">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-lg-6 mb-4 mb-lg-0">
+              <div class="card mb-3" style="border-radius: .5rem;">
+                <div class="row g-0">
+                  <div class="col-md-4 gradient-custom text-center text-white"
+                    style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
+                    
+                    <input type="file" style="display: none;" id="inputFile">
+                    <img src=""
+                      alt="Avatar" class="img-fluid my-5" style="width: 80px;" id="img-profile"/>
+                      
+                    <h5 id="nome-text"></h5>
+
+                    <i class="far fa-edit mb-5"></i>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body p-4">
+                      <h6>Informações</h6>
+                      <hr class="mt-0 mb-4">
+                      <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                          <h6>Nome</h6>
+                          <input type="text" class="input-profile" id="input-name">
+                        </div>
+                        <div class="col-6 mb-3">
+                          <h6>Email</h6>
+                          <input type="email" class="input-profile" id="input-email">
+                        </div>
+                      </div>
+                      <br>
+                      <h6>Alterar Senha</h6>
+                      <hr class="mt-0 mb-4">
+                      <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                          <h6>Sua Senha</h6>
+                          <input type="text" class="input-password" id="input-password" placeholder="Digite sua senha">
+                        </div>
+                        <div class="col-6 mb-3">
+                          <h6>Nova Senha</h6>
+                          <input type="text" class="input-password" id="input-newPassword" placeholder="Digite sua Nova senha">
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-start">
+                        <button type="button" class="btn btn-outline-success" id="buttonSubmit">Salvar Alterações</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+   
+
+    <script type="module">
+		// Import the functions you need from the SDKs you need
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+		import { getAuth, onAuthStateChanged, updateProfile, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-storage.js";
+		// TODO: Add SDKs for Firebase products that you want to use
+		// https://firebase.google.com/docs/web/setup#available-libraries
+	  
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+		  apiKey: "AIzaSyBV9qZRYgmjgXZd4InMAHPa6xeA1MXUj5k",
+		  authDomain: "autenticacao-usuario-c6eb5.firebaseapp.com",
+		  projectId: "autenticacao-usuario-c6eb5",
+		  storageBucket: "autenticacao-usuario-c6eb5.appspot.com",
+		  messagingSenderId: "930821960907",
+		  appId: "1:930821960907:web:df5ccf4b5b274b09b6974e"
+		};
+	  
+		// Initialize Firebase
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        const container_name = document.getElementById("nome-text");
+        const input_name = document.getElementById("input-name");
+        const input_email = document.getElementById("input-email");
+        const img_profile = document.getElementById("img-profile");
+        const inputFile = document.getElementById("inputFile");
+        const inputPassword = document.getElementById("input-password");
+        const inputNewPassword = document.getElementById("input-newPassword")
+
+        
+
+		function exibeDados(user){
+
+            if(user){
+
+               container_name.textContent = user.displayName;
+               input_name.value = user.displayName;
+               input_email.value = user.email;
+               img_profile.src = user.photoURL;
+               
+            }else{
+                window.location.href = "index.html";
+
+            }
+        }
+
+        onAuthStateChanged(auth, function(user) {
+            exibeDados(user);
+        });
+
+        
+        //Alterar Imagem de perfil quando clicado
+        img_profile.addEventListener("click", () =>{
+            inputFile.click();
+        });
+
+        inputFile.addEventListener("change", () => {
+            const Arquivo = inputFile.files[0];
+
+            if(Arquivo){
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    img_profile.src = e.target.result;
+                };
+                reader.readAsDataURL(Arquivo);
+            }
+
+
+        });
+
+        
+
+        const buttonSubmit = document.getElementById("buttonSubmit");
+
+        
+
+        buttonSubmit.addEventListener("click", () => {
+            
+            const user = auth.currentUser;
+            const novoNome = input_name.value;
+            const novoEmail = input_email.value; 
+            const new_image = inputFile.files[0]
+            const senha = inputPassword.value;
+            const novaSenha = inputNewPassword.value;
+            
+            if(novoNome !== "" && novoNome != user.displayName){
+                updateProfile(user, {
+                    displayName: novoNome,
+                }).catch(function(error) {
+                    alert("Erro ao atualizar o nome: " + error.message);
+                });
+            }
+
+
+            if(novoEmail !== "" && novoEmail !== user.email){
+                updateEmail(user, novoEmail)
+                .catch(function(error) {
+                    alert("Erro ao atualizar o email: " + error.message);
+                });
+            }
+
+            
+
+            if(new_image){
+                const storageRef = ref(storage, `profile_images/${user.uid}`);
+                uploadBytes(storageRef, new_image)
+                .then(function() {
+                    getDownloadURL(storageRef)
+                    .then(function(imgURL) {
+                        updateProfile(user, {
+                            photoURL: imgURL
+                        }).catch(function(error) {
+                            alert("Erro ao atualizar a imagem: " + error.message);
+                        });
+                    });
+                })
+                .catch(function(error) {
+                    alert("Erro ao fazer upload da nova imagem: " + error.message);
+                });
+            }
+
+            
+            if(novaSenha !== ""){
+
+            signInWithEmailAndPassword(auth,user.email, senha)
+            .then(function(userCredential){
+                const user = userCredential.user;
+                updatePassword(user, novaSenha)
+                .then(() => {
+                    console.log("Senha atualizada com sucesso!");
+                })
+                .catch(error => {
+                    console.error("Erro ao atualizar a senha:", error);
+                });
+                }).catch(function(error){
+                    alert("Senha incorreta");
+                });
+            }
+
+            alert("Dados Atualizados com Sucesso")
+        })
+        
+
+	</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+</html>
